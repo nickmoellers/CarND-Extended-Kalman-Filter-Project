@@ -15,6 +15,34 @@ VectorXd Tools::CalculateRMSE(const vector<VectorXd> &estimations,
   TODO:
     * Calculate the RMSE here.
   */
+
+  VectorXd rmse(4);
+  rmse << 0,0,0,0;
+
+  // check the validity of the following inputs:
+  //  * the estimation vector size should not be zero
+  if( estimations.size() == 0 ) return rmse;
+  //  * the estimation vector size should equal ground truth vector size
+  if( estimations.size() != ground_truth.size() ) return rmse;
+
+  //float sum_squared_residual=0
+  //accumulate squared residuals
+  for(int i=0; i < estimations.size(); ++i){
+    float x_e=estimations[i];
+    float x_gt=ground_truth[i];
+    float squared_residual = pow(x_e-x_gt,2);
+    rmse+=squared_residual;
+  }
+
+  //calculate the mean
+  rmse = rmse/estimations.size();
+
+  //calculate the squared root
+  rmse = rmse.array().sqrt();
+
+  //return the result
+  return rmse;
+
 }
 
 MatrixXd Tools::CalculateJacobian(const VectorXd& x_state) {
