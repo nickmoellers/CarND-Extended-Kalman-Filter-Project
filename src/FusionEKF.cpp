@@ -68,6 +68,8 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
       /**
       Convert radar from polar to cartesian coordinates and initialize state.
       */
+
+
     }
     else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
       /**
@@ -95,20 +97,25 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
      * Use noise_ax = 9 and noise_ay = 9 for your Q matrix.
    */
 
+  float noise_ax = 9.0;
+  float noise_ay = 9.0;
+  float dt = measurement_pack.timestamp_ - previous_timestamp_;
+  previous_timestamp_ = measurement_pack.timestamp_;
+
   //1. Modify the F matrix so that the time is integrated
-  kf_.F_ << 1, 0, dt, 0,
+  ekf_.F_ << 1, 0, dt, 0,
             0, 1, 0,  dt,
             0, 0, 1,  0,
             0, 0, 0,  1;
 
   //2. Set the process covariance matrix Q
-  kf_.Q_ = MatrixXd(4, 4);
+  ekf_.Q_ = MatrixXd(4, 4);
 
   float dt2 = dt*dt;
   float dt3 = dt*dt*dt;
   float dt4 = dt*dt*dt*dt;
 
-  kf_.Q_ << dt4*noise_ax/4, 0, dt3*noise_ax/2, 0,
+  ekf_.Q_ << dt4*noise_ax/4, 0, dt3*noise_ax/2, 0,
             0, dt4*noise_ay/4, 0, dt3*noise_ay/2,
             dt3*noise_ax/2, 0, dt2*noise_ax,   0,
             0, dt3*noise_ay/2, 0,   dt2*noise_ay;
