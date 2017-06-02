@@ -29,7 +29,7 @@ std::string hasData(std::string s) {
 int main()
 {
   uWS::Hub h;
-
+  cout << "Hello. 1." << endl;
   // Create a Kalman Filter instance
   FusionEKF fusionEKF;
 
@@ -38,10 +38,14 @@ int main()
   vector<VectorXd> estimations;
   vector<VectorXd> ground_truth;
 
+  cout << "Hello. 2." << endl;
+
   h.onMessage([&fusionEKF,&tools,&estimations,&ground_truth](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
     // The 4 signifies a websocket message
     // The 2 signifies a websocket event
+
+    cout << "Hello. 3." << endl;
 
     if (length && length > 2 && data[0] == '4' && data[1] == '2')
     {

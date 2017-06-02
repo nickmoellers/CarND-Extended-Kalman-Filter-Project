@@ -32,7 +32,7 @@ FusionEKF::FusionEKF() {
               0, 0, 0.09;
 
   /**
-  TODO:
+  DONE:
     * Finish initializing the FusionEKF.
     * Set the process and measurement noises
   */
@@ -47,7 +47,7 @@ FusionEKF::FusionEKF() {
              0, 0, 0,  1;
 
   ekf_.x_ = VectorXd(4);
-  ekf_.x_ < 0, 0, 0, 0;
+  ekf_.x_ << 0, 0, 0, 0;
 
   ekf_.P_ = MatrixXd(4,4);
   ekf_.P_ << 1, 0, 0, 0,
@@ -100,6 +100,8 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
       /**
       Convert radar from polar to cartesian coordinates and initialize state.
       */
+      cout << "Initializing x_ from radar data." << endl;
+
       float ro = measurement_pack.raw_measurements_[0];
       float theta = measurement_pack.raw_measurements_[1];
       float ro_dot = measurement_pack.raw_measurements_[2];
@@ -113,6 +115,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
       /**
       Initialize state.
       */
+      cout << "Initializing x_ from laser data." << endl;
       px = measurement_pack.raw_measurements_[0];
       py = measurement_pack.raw_measurements_[1];
 
@@ -124,6 +127,10 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
     float vx = 0;
     float vy = 0;
     ekf_.x_ << px, py, vx, vy;
+
+    // print the output
+
+    cout << "x_ = " << ekf_.x_ << endl;
 
     previous_timestamp_ = measurement_pack.timestamp_;
 
@@ -153,6 +160,9 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
              0, 0, 1,  0,
              0, 0, 0,  1;
 
+  // print the output
+  cout << "F_ = " << ekf_.F_ << endl;
+
   //2. Set the process covariance matrix Q
   float noise_ax = 9.0;
   float noise_ay = 9.0;
@@ -168,7 +178,16 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
             dt3*noise_ax/2, 0, dt2*noise_ax,   0,
             0, dt3*noise_ay/2, 0,   dt2*noise_ay;
 
+  // print the output
+  cout << "Q_ = " << ekf_.Q_ << endl;
+
+  cout << "Predicting State... " << endl;
+
   ekf_.Predict();
+
+  // print the output
+  cout << "x_ = " << ekf_.x_ << endl;
+  cout << "P_ = " << ekf_.P_ << endl;
 
   /*****************************************************************************
    *  Update
@@ -183,14 +202,21 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
 
   if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
     // Radar updates
-    Hj_ = tools.CalculateJacobian(ekf_.x_); //not sure if this is right
-    ekf_.H_ = Hj_; ////????? which is the jacobian of the state vector?
+    cout << "Radar updates: " << endl;
+    cout << "Calculating Jacobian... " << endl;
+    Hj_ = tools.CalculateJacobian(ekf_.x_);
+    cout << "Hj_ = " << Hj_ << endl;
+    ekf_.H_ = Hj_;
     ekf_.R_ = R_radar_;
+    cout << "Updating State... " << endl;
     ekf_.UpdateEKF(measurement_pack.raw_measurements_);
+
   } else {
     // Laser updates
+    cout << "Laser updates: " << endl;
     ekf_.H_ = H_laser_;
     ekf_.R_ = R_laser_;
+    cout << "Updating State (EKF)... " << endl;
     ekf_.Update(measurement_pack.raw_measurements_);
   }
 
