@@ -13,6 +13,7 @@ using std::vector;
  */
 FusionEKF::FusionEKF() {
   is_initialized_ = false;
+  int i = 1;
 
   previous_timestamp_ = 0;
 
@@ -41,12 +42,15 @@ FusionEKF::FusionEKF() {
               0, 1, 0, 0;
 
   float dt = 0;
+  ekf_.F_ = MatrixXd(4,4);
+
   ekf_.F_ << 1, 0, dt, 0,
              0, 1, 0,  dt,
              0, 0, 1,  0,
              0, 0, 0,  1;
 
   ekf_.x_ = VectorXd(4);
+
   ekf_.x_ << 0, 0, 0, 0;
 
   ekf_.P_ = MatrixXd(4,4);
