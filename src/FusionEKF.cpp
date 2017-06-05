@@ -137,12 +137,8 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
       std::cout << "WARNING: Failed to initalize ekf_.x_ from data" << std::endl;
     }
 
-    if( fabs( px ) < 0.0001 and fabs( py ) < 0.0001 ) {
-      px = 0.0001;
-      py = 0.0001;
-    }
-
-
+    if( fabs( px ) < 0.0001 ) px = 0.0001;
+    if( fabs( py ) < 0.0001 ) py = 0.0001;
 
     ekf_.x_ << px, py, vx, vy;
 
@@ -179,7 +175,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
              0, 0, 0,  1;
 
   // print the output
-  cout << "F_ = " << ekf_.F_ << endl;
+  //cout << "F_ = " << ekf_.F_ << endl;
 
   //2. Set the process covariance matrix Q
   float noise_ax = 9.0;
@@ -197,15 +193,15 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
             0, dt3*noise_ay/2, 0,   dt2*noise_ay;
 
   // print the output
-  cout << "Q_ = " << ekf_.Q_ << endl;
+  //cout << "Q_ = " << ekf_.Q_ << endl;
 
-  cout << "Predicting State... " << endl;
+  //cout << "Predicting State... " << endl;
 
   ekf_.Predict();
 
   // print the output
-  cout << "x_ = " << ekf_.x_ << endl;
-  cout << "P_ = " << ekf_.P_ << endl;
+  //cout << "x_ = " << ekf_.x_ << endl;
+  //cout << "P_ = " << ekf_.P_ << endl;
 
   /*****************************************************************************
    *  Update
@@ -239,8 +235,8 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
   }
 
   // print the output
-  cout << "at time = " << measurement_pack.timestamp_ << endl;
-  cout << "measurements = " << measurement_pack.raw_measurements_ << endl;
-  cout << "x_ = " << ekf_.x_ << endl;
-  cout << "P_ = " << ekf_.P_ << endl;
+  //cout << "at time = " << measurement_pack.timestamp_ << endl;
+  //cout << "measurements = " << measurement_pack.raw_measurements_ << endl;
+  //cout << "x_ = " << ekf_.x_ << endl;
+  //cout << "P_ = " << ekf_.P_ << endl;
 }
