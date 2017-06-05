@@ -8,6 +8,7 @@ using Eigen::MatrixXd;
 using Eigen::VectorXd;
 using std::vector;
 
+
 /*
  * Constructor.
  */
@@ -41,7 +42,11 @@ FusionEKF::FusionEKF() {
   H_laser_ << 1, 0, 0, 0,
               0, 1, 0, 0;
 
-  float dt = 0;
+  Hj_ << 1,1,0,0,
+      1,1,0,0,
+      1,1,1,1;
+
+  float dt = 1;
   ekf_.F_ = MatrixXd(4,4);
 
   ekf_.F_ << 1, 0, dt, 0,
@@ -100,6 +105,9 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
 
     float px = 0;
     float py = 0;
+    //Q&A says to play with vx and vy values
+    float vx = 0;
+    float vy = 0;
     if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
       /**
       Convert radar from polar to cartesian coordinates and initialize state.
@@ -112,7 +120,8 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
 
       px = ro * cos( theta );
       py = ro * sin( theta );
-
+      vx = ro_dot * cos( theta );
+      vy = ro_dot * sin( theta );
 
     }
     else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
@@ -127,9 +136,8 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
       std::cout << "WARNING: Failed to initalize ekf_.x_ from data" << std::endl;
     }
 
-    //Q&A says to play with vx and vy values
-    float vx = 0;
-    float vy = 0;
+
+
     ekf_.x_ << px, py, vx, vy;
 
     // print the output
@@ -221,7 +229,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
     ekf_.H_ = H_laser_;
     ekf_.R_ = R_laser_;
     //cout << "Updating State (EKF)... " << endl;
-    //ekf_.Update(measurement_pack.raw_measurements_);
+    ekf_.Update(measurement_pack.raw_measurements_);
   }
 
   // print the output

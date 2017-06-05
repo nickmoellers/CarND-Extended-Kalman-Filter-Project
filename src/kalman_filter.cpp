@@ -66,7 +66,14 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
   float vy = x_(3);
 
   float rho = sqrt( px*px+py*py );
+
   float phi = atan2( py, px );
+  while( phi < M_PI) phi += 2*M_PI;
+  while( phi > M_PI) phi -= 2*M_PI;
+
+  //Ensure I don't divide by zero;
+  float rhodot_denom = sqrt(px*px+py*py);
+  if( rhodot_denom < 0.001) rhodot_denom = 0.001;
   float rhodot = (px*vx+py*vy)/sqrt(px*px+py*py);
 
   VectorXd z_pred = VectorXd(3);
