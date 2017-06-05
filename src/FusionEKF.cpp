@@ -116,6 +116,8 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
 
       float ro = measurement_pack.raw_measurements_[0];
       float theta = measurement_pack.raw_measurements_[1];
+      while( theta < M_PI) theta += 2*M_PI;
+      while( theta > M_PI) theta -= 2*M_PI;
       float ro_dot = measurement_pack.raw_measurements_[2];
 
       px = ro * cos( theta );
