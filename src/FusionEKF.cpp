@@ -138,6 +138,11 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
       std::cout << "WARNING: Failed to initalize ekf_.x_ from data" << std::endl;
     }
 
+    if( fabs( px ) < 0.0001 and fabs( py ) < 0.0001 ) {
+      px = 0.0001;
+      py = 0.0001;
+    }
+
 
 
     ekf_.x_ << px, py, vx, vy;
