@@ -61,7 +61,7 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
   MatrixXd I = MatrixXd::Identity(x_.size(),x_.size());
 
 
-  cout << "x_ = " << x_ << endl;
+ //cout << "x_ = " << x_ << endl;
 
   float px = x_(0);
   float py = x_(1);
@@ -72,9 +72,9 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
 
   float theta = atan2( py, px );
   if( fabs(theta) > M_PI ) {
-    cout << "PREDICTED THETA = "<< theta << endl;
+   //cout << "PREDICTED THETA = "<< theta << endl;
     theta = atan2(sin(theta), cos(theta));
-    cout << "NORMALIZED THETA = "<< theta << endl;
+   //cout << "NORMALIZED THETA = "<< theta << endl;
   }
   theta = atan2(sin(theta), cos(theta));
   float rhodot_denom = sqrt(px*px+py*py);
@@ -84,21 +84,21 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
   z_pred << rho, theta, rhodot;
   //Divide by zero? Zero out.
   if( rhodot_denom < 0.0001) {
-    cout << "DIVIDE BY ZERO" << endl;
+   //cout << "DIVIDE BY ZERO" << endl;
     z_pred << 0.0, 0.0, 0.0;
   }
 
-  cout << "z = "<< z << endl;
-  cout << "z_pred = "<< z_pred << endl;
+ //cout << "z = "<< z << endl;
+ //cout << "z_pred = "<< z_pred << endl;
   VectorXd y = z-z_pred;
   theta = y[1];
   if( fabs(theta) > M_PI ) {
-      cout << "DELTA THETA = "<< theta << endl;
+     //cout << "DELTA THETA = "<< theta << endl;
       theta = atan2(sin(theta), cos(theta));
-      cout << "NORMALIZED THETA = "<< theta << endl;
+     //cout << "NORMALIZED THETA = "<< theta << endl;
     }
   y[1] = theta;
-  cout << "y = "<< y << endl;
+ //cout << "y = "<< y << endl;
   MatrixXd Ht = H_.transpose();
   //cout << "H = "<< H_ << endl;
   //cout << "Ht = "<< Ht << endl;
@@ -111,11 +111,11 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
   MatrixXd K = P_*Ht*Si;
   //cout << "K = " << K << endl;
   MatrixXd Ky = K*y;
-  cout << "Ky = " << Ky << endl;
+ //cout << "Ky = " << Ky << endl;
 
   x_ = x_ + K*y;
 
-  cout << "x_ = " << x_ << endl;
+ //cout << "x_ = " << x_ << endl;
 
   P_ = (I-K*H_)*P_;
 

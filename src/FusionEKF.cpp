@@ -99,7 +99,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
       * Remember: you'll need to convert radar from polar to cartesian coordinates.
     */
     // first measurement
-    cout << "EKF: " << endl;
+   //cout << "EKF: " << endl;
     ekf_.x_ = VectorXd(4);
     ekf_.x_ << 1, 1, 1, 1;
 
@@ -216,7 +216,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
 
   if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
     // Radar updates
-    cout << "Radar updates: " << endl;
+   //cout << "Radar updates: " << endl;
     //cout << "Calculating Jacobian... " << endl;
     Hj_ = tools.CalculateJacobian(ekf_.x_);
     //cout << "Hj_ = " << Hj_ << endl;
@@ -227,7 +227,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
 
   } else {
     // Laser updates
-    cout << "Laser updates: " << endl;
+   //cout << "Laser updates: " << endl;
     ekf_.H_ = H_laser_;
     ekf_.R_ = R_laser_;
     //cout << "Updating State (EKF)... " << endl;
