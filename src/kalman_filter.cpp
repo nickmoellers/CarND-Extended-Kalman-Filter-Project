@@ -1,4 +1,7 @@
 #include "kalman_filter.h"
+//#include <iostream>
+
+//using namespace std;
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
@@ -23,12 +26,9 @@ void KalmanFilter::Predict() {
     * predict the state
   */
 
-
   x_ = F_*x_; //Should I add random normal noise?
   MatrixXd Ft = F_.transpose();
   P_ = F_*P_*Ft+Q_;
-
-
 
 }
 
@@ -37,8 +37,6 @@ void KalmanFilter::Update(const VectorXd &z) {
   TODO:
     * update the state by using Kalman Filter equations
   */
-
-
 
   MatrixXd I = MatrixXd::Identity(x_.size(),x_.size());
 
@@ -58,7 +56,7 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
     * update the state by using Extended Kalman Filter equations
   */
 
-
+  int i = 0;
 
   MatrixXd I = MatrixXd::Identity(x_.size(),x_.size());
 
@@ -75,12 +73,12 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
   z_pred << rho, phi, rhodot;
 
   VectorXd y = z-z_pred;
-
-  VectorXd Ht = H_.transpose();
-  VectorXd S = H_*P_*Ht+R_;
+  MatrixXd Ht = H_.transpose();
+  MatrixXd S = H_*P_*Ht+R_;
   MatrixXd Si = S.inverse();
   MatrixXd K = P_*Ht*Si;
 
   x_ = x_ + K*y;
   P_ = (I-K*H_)*P_;
+
 }
