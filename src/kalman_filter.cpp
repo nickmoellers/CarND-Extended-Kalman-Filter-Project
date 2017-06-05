@@ -68,8 +68,7 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
   float rho = sqrt( px*px+py*py );
 
   float phi = atan2( py, px );
-  while( phi < M_PI) phi += 2*M_PI;
-  while( phi > M_PI) phi -= 2*M_PI;
+  phi = atan2(sin(phi), cos(phi));
 
   float rhodot_denom = sqrt(px*px+py*py);
   float rhodot = (px*vx+py*vy)/sqrt(px*px+py*py);
