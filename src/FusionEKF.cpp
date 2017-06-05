@@ -116,13 +116,13 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
 
       float ro = measurement_pack.raw_measurements_[0];
       float theta = measurement_pack.raw_measurements_[1];
-      theta = atan2(sin(theta), cos(theta));
+      //theta = atan2(sin(theta), cos(theta));
       float ro_dot = measurement_pack.raw_measurements_[2];
 
       px = ro * cos( theta );
       py = ro * sin( theta );
-      //vx = ro_dot * cos( theta );
-      //vy = ro_dot * sin( theta );
+      vx = ro_dot * cos( theta );
+      vy = ro_dot * sin( theta );
 
     }
     else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
@@ -168,72 +168,74 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
   float dt = (measurement_pack.timestamp_ - previous_timestamp_)/1000000.0; //add one more zero?
   previous_timestamp_ = measurement_pack.timestamp_;
 
-  //1. Modify the F matrix so that the time is integrated
-  ekf_.F_ << 1, 0, dt, 0,
-             0, 1, 0,  dt,
-             0, 0, 1,  0,
-             0, 0, 0,  1;
+  if( dt > 0.0001 ) { //improvement suggestions by reviewer
 
-  // print the output
-  //cout << "F_ = " << ekf_.F_ << endl;
+    //1. Modify the F matrix so that the time is integrated
+    ekf_.F_ << 1, 0, dt, 0,
+               0, 1, 0,  dt,
+               0, 0, 1,  0,
+               0, 0, 0,  1;
 
-  //2. Set the process covariance matrix Q
-  float noise_ax = 9.0;
-  float noise_ay = 9.0;
+    // print the output
+    //cout << "F_ = " << ekf_.F_ << endl;
 
-  float dt2 = dt*dt;
-  float dt3 = dt*dt*dt;
-  float dt4 = dt*dt*dt*dt;
+    //2. Set the process covariance matrix Q
+    float noise_ax = 9.0;
+    float noise_ay = 9.0;
 
-  ekf_.Q_ = MatrixXd(4, 4);
+    float dt2 = dt*dt;
+    float dt3 = dt*dt*dt;
+    float dt4 = dt*dt*dt*dt;
 
-  ekf_.Q_ << dt4*noise_ax/4, 0, dt3*noise_ax/2, 0,
-            0, dt4*noise_ay/4, 0, dt3*noise_ay/2,
-            dt3*noise_ax/2, 0, dt2*noise_ax,   0,
-            0, dt3*noise_ay/2, 0,   dt2*noise_ay;
+    ekf_.Q_ = MatrixXd(4, 4);
 
-  // print the output
-  //cout << "Q_ = " << ekf_.Q_ << endl;
+    ekf_.Q_ << dt4*noise_ax/4, 0, dt3*noise_ax/2, 0,
+              0, dt4*noise_ay/4, 0, dt3*noise_ay/2,
+              dt3*noise_ax/2, 0, dt2*noise_ax,   0,
+              0, dt3*noise_ay/2, 0,   dt2*noise_ay;
 
-  //cout << "Predicting State... " << endl;
+    // print the output
+    //cout << "Q_ = " << ekf_.Q_ << endl;
 
-  ekf_.Predict();
+    //cout << "Predicting State... " << endl;
 
-  // print the output
-  //cout << "x_ = " << ekf_.x_ << endl;
-  //cout << "P_ = " << ekf_.P_ << endl;
+    ekf_.Predict();
 
-  /*****************************************************************************
-   *  Update
-   ****************************************************************************/
+    // print the output
+    //cout << "x_ = " << ekf_.x_ << endl;
+    //cout << "P_ = " << ekf_.P_ << endl;
 
-  /**
-   DONE:
-     * Use the sensor type to perform the update step.
-     * Update the state and covariance matrices.
-     *   Note: Isn't this done in Update() and UpdateEKF()?
-   */
+    /*****************************************************************************
+     *  Update
+     ****************************************************************************/
 
-  if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
-    // Radar updates
-   //cout << "Radar updates: " << endl;
-    //cout << "Calculating Jacobian... " << endl;
-    Hj_ = tools.CalculateJacobian(ekf_.x_);
-    //cout << "Hj_ = " << Hj_ << endl;
-    ekf_.H_ = Hj_;
-    ekf_.R_ = R_radar_;
-    //cout << "Updating State... " << endl;
-    ekf_.UpdateEKF(measurement_pack.raw_measurements_);
+    /**
+     DONE:
+       * Use the sensor type to perform the update step.
+       * Update the state and covariance matrices.
+       *   Note: Isn't this done in Update() and UpdateEKF()?
+     */
 
-  } else {
-    // Laser updates
-   //cout << "Laser updates: " << endl;
-    ekf_.H_ = H_laser_;
-    ekf_.R_ = R_laser_;
-    //cout << "Updating State (EKF)... " << endl;
-    ekf_.Update(measurement_pack.raw_measurements_);
+    if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
+      // Radar updates
+     //cout << "Radar updates: " << endl;
+      //cout << "Calculating Jacobian... " << endl;
+      Hj_ = tools.CalculateJacobian(ekf_.x_);
+      //cout << "Hj_ = " << Hj_ << endl;
+      ekf_.H_ = Hj_;
+      ekf_.R_ = R_radar_;
+      //cout << "Updating State... " << endl;
+      ekf_.UpdateEKF(measurement_pack.raw_measurements_);
+
+    } else {
+      // Laser updates
+     //cout << "Laser updates: " << endl;
+      ekf_.H_ = H_laser_;
+      ekf_.R_ = R_laser_;
+      //cout << "Updating State (EKF)... " << endl;
+      ekf_.Update(measurement_pack.raw_measurements_);
+    }
   }
-
   // print the output
   //cout << "at time = " << measurement_pack.timestamp_ << endl;
   //cout << "measurements = " << measurement_pack.raw_measurements_ << endl;
