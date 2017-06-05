@@ -163,7 +163,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
      * Use noise_ax = 9 and noise_ay = 9 for your Q matrix.
    */
 
-  float dt = (measurement_pack.timestamp_ - previous_timestamp_)/100000.0;
+  float dt = (measurement_pack.timestamp_ - previous_timestamp_)/100000.0; //add one more zero?
   previous_timestamp_ = measurement_pack.timestamp_;
 
   //1. Modify the F matrix so that the time is integrated

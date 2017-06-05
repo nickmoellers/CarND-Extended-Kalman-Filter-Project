@@ -71,13 +71,13 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
   while( phi < M_PI) phi += 2*M_PI;
   while( phi > M_PI) phi -= 2*M_PI;
 
-  //Ensure I don't divide by zero;
   float rhodot_denom = sqrt(px*px+py*py);
-  if( rhodot_denom < 0.001) rhodot_denom = 0.001;
   float rhodot = (px*vx+py*vy)/sqrt(px*px+py*py);
 
   VectorXd z_pred = VectorXd(3);
   z_pred << rho, phi, rhodot;
+  //Divide by zero? Zero out.
+  if( rhodot_denom < 0.0001) z_pred << 0.0, 0.0, 0.0;
 
   VectorXd y = z-z_pred;
   MatrixXd Ht = H_.transpose();
